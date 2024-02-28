@@ -1,15 +1,39 @@
-use std::net::TcpStream;
+mod net;
 
-fn main() {
-    println!("Tentative de connexion au serveur...");
-    // L'objet TcpStream est globalement important et à des méthodes read write il faudra se renseigner.
-    // la méthode connect prends en paramètre ip:port mais fonctionne aussi comme suit => (ip,port) (pas tout mais en 2 paramètres quoi)
-    match TcpStream::connect("127.0.0.1:1234") {
-        Ok(_) => {
-            println!("Salut les PD !");
-        }
-        Err(e) => {
-            println!("PAS CONNECTE {}", e);
+use eframe::egui;
+
+struct MyApp {
+    name: String,
+    age: u32,
+}
+
+impl Default for MyApp {
+    fn default() -> Self {
+        Self {
+            name: "Arthur".to_owned(),
+            age: 42,
         }
     }
+}
+
+impl eframe::App for MyApp {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.heading("Heading");
+            ui.label("Label");
+            ui.text_edit_singleline(&mut self.name);
+            if ui.button("Button").clicked() {}
+        });
+    }
+}
+
+fn main() {
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
+        ..Default::default()
+    };
+    eframe::run_native("egui App", options, Box::new(|cc| Box::<MyApp>::default()));
+
+    println!("Tentative de connexion au serveur...");
+    net::connect("127.0.0.1:1234");
 }
