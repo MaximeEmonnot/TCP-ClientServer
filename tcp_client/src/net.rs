@@ -18,7 +18,5 @@ fn client_routine(stream: TcpStream) {
     let stdout = std::io::stdout();
     let mut io = stdout.lock();
     let mut buf = &mut[0; 3];
-    loop {
-        println!("PD");
-    }
+    
 }
