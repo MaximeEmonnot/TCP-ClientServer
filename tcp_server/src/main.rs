@@ -1,8 +1,39 @@
-use std::{net::{TcpListener, TcpStream}, thread};
+use std::{io::{Read, Write}, net::{TcpListener, TcpStream}, thread};
 
-fn handle_client(mut stream: TcpStream)
+fn handle_client(mut stream: TcpStream, address : &str)
 {
-    // TODO : Reception et renvoi de message
+    let mut msg : Vec<u8> = Vec::new();
+    loop {
+        let mut buf = &mut [0; 10];
+
+        match stream.read(buf){
+            Ok(received) => {
+                if received < 1 {
+                    println!("Client disconnected {}", address);
+                    return;
+                }
+                let mut x = 0;
+
+                for c in buf {
+                    if x >= received {
+                        break;
+                    }
+                    x += 1;
+                    if *c == '\n' as u8 {
+                        println!("Message reçu {} : {}", address, String::from_utf8(msg).unwrap());
+                        stream.write(b"ok\n");
+                        msg = Vec::new();
+                    } else {
+                        msg.push(*c);
+                    }
+                }
+            }
+            Err(_) => {
+                println!("Client disconnected : {}", address);
+                return;
+            }
+        }
+    }
 }
 
 fn main() {
@@ -21,7 +52,7 @@ fn main() {
                 println!("Nouveau client : {}", address);
 
                 thread::spawn(move|| {
-                    handle_client(stream)
+                    handle_client(stream, &*address)
                 });
             }
             Err(e) =>
