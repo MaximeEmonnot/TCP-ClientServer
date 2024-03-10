@@ -1,4 +1,4 @@
-use std::{io::{Read, Write}, net::{TcpListener, TcpStream}, os::windows::io::AsSocket, str::from_utf8, sync::{Arc, Mutex}, thread};
+use std::{io::{Read, Write}, net::{TcpListener, TcpStream}, str::from_utf8, sync::{Arc, Mutex}, thread};
 
 fn handle_client(mut stream: TcpStream, address : &str, clients : Arc<Mutex<Vec<std::net::TcpStream>>>)
 {
@@ -20,7 +20,7 @@ fn handle_client(mut stream: TcpStream, address : &str, clients : Arc<Mutex<Vec<
 
 fn main() {
     let listener : TcpListener = TcpListener::bind("127.0.0.1:1234").unwrap();
-    let mut clients = Arc::new(Mutex::new(Vec::new()));
+    let clients = Arc::new(Mutex::new(Vec::new()));
 
     for stream in listener.incoming()
     {
