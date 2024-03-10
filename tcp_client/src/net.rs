@@ -1,7 +1,7 @@
 use std::{io::{Read, Write}, net::TcpStream};
 
 pub fn connect(address : &str, non_blocking : bool) -> TcpStream {
-    let mut stream = TcpStream::connect(address).expect("Erreur : Impossible de se connecter au serveur distant");
+    let stream = TcpStream::connect(address).expect("Erreur : Impossible de se connecter au serveur distant");
     stream.set_nonblocking(non_blocking).expect("Erreur : Impossible de modifier l'aspect non-bloquant");
     return stream;
 }
@@ -20,5 +20,5 @@ pub fn handle_read(stream : &mut TcpStream) -> String {
 }
 
 pub fn handle_write(stream : &mut TcpStream, msg : &String) {
-    stream.write(msg.trim().as_bytes());
+    let _ = stream.write(msg.trim().as_bytes());
 }
