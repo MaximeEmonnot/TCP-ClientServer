@@ -1,6 +1,7 @@
 use eframe::egui;
 
 use crate::net;
+/*
 pub struct MyApp {
     ip_address: String,
 }
@@ -33,3 +34,4 @@ pub fn run<T: eframe::App + Default + 'static>(window_name: &str)
     };
     eframe::run_native(window_name, options, Box::new(|cc| Box::<T>::default()));
 }
+*/

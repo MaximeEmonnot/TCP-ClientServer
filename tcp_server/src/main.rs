@@ -1,45 +1,27 @@
-use std::{io::{Read, Write}, net::{TcpListener, TcpStream}, thread};
+use std::{io::{Read, Write}, net::{TcpListener, TcpStream}, os::windows::io::AsSocket, str::from_utf8, sync::{Arc, Mutex}, thread};
 
-fn handle_client(mut stream: TcpStream, address : &str)
+fn handle_client(mut stream: TcpStream, address : &str, clients : Arc<Mutex<Vec<std::net::TcpStream>>>)
 {
-    let mut msg : Vec<u8> = Vec::new();
     loop {
-        let mut buf = &mut [0; 10];
+        let mut buffer = [0; 2048];
+        let bytes_read = stream.read(&mut buffer).expect("Failed to read from socket");
+        if bytes_read == 0 {
+            println!("Client disconnected : {}", address);
+            return;
+        }
+        println!("Recieved : {}", from_utf8(&buffer).unwrap());
 
-        match stream.read(buf){
-            Ok(received) => {
-                if received < 1 {
-                    println!("Client disconnected {}", address);
-                    return;
-                }
-                let mut x = 0;
-
-                for c in buf {
-                    if x >= received {
-                        break;
-                    }
-                    x += 1;
-                    if *c == '\n' as u8 {
-                        println!("Message reçu {} : {}", address, String::from_utf8(msg).unwrap());
-                        stream.write(b"ok\n");
-                        msg = Vec::new();
-                    } else {
-                        msg.push(*c);
-                    }
-                }
-            }
-            Err(_) => {
-                println!("Client disconnected : {}", address);
-                return;
-            }
+        let mut clients = clients.lock().unwrap();
+        for client in clients.iter_mut() {
+            client.write_all(&buffer[..bytes_read]).expect("Failed to write to socket");
         }
     }
 }
 
 fn main() {
     let listener : TcpListener = TcpListener::bind("127.0.0.1:1234").unwrap();
+    let mut clients = Arc::new(Mutex::new(Vec::new()));
 
-    println!("En attente d'un client...");
     for stream in listener.incoming()
     {
         match stream {
@@ -50,9 +32,11 @@ fn main() {
                 };
 
                 println!("Nouveau client : {}", address);
+                let clients = Arc::clone(&clients);
+                clients.lock().unwrap().push(stream.try_clone().expect("Failed to clone socket"));
 
                 thread::spawn(move|| {
-                    handle_client(stream, &*address)
+                    handle_client(stream, &*address, clients)
                 });
             }
             Err(e) =>
