@@ -53,7 +53,7 @@ impl ClientGUI {
 }
 
 impl eframe::App for ClientGUI {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             // Si le client est connecté
             if self.is_connected {
@@ -114,6 +114,6 @@ pub fn run(window_name: &String) {
     let _ = eframe::run_native(
         window_name,
         options,
-        Box::new(|cc| Box::<ClientGUI>::default()),
+        Box::new(|_cc| Box::<ClientGUI>::default()),
     );
 }

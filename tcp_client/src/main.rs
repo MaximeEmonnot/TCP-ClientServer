@@ -1,5 +1,3 @@
-use std::{io, thread};
-
 mod app;
 mod net;
 
