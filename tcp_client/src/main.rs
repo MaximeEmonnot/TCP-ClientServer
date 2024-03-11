@@ -6,6 +6,8 @@ mod net;
 fn main() {
     println!("Tentative de connexion au serveur...");
 
+    app::run(&"Test TCP".to_string());
+    /*
     let mut stream = net::connect("127.0.0.1:1234", false);
     let mut client = stream
         .try_clone()
@@ -22,5 +24,5 @@ fn main() {
             .read_line(&mut buff)
             .expect("Reading from stdin failed");
         net::handle_write(&mut client, &buff);
-    }
+    }*/
 }
